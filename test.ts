@@ -10,7 +10,6 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 import { AzureOpenAI } from "openai";
-import os from "os";
 
 /* =======================
    ENV VARIABLES
@@ -71,10 +70,10 @@ async function documentProcessing(filePath: string): Promise<string> {
 }
 
 
-// const jsonDir = path.join(process.cwd(), "generated-json");
-// if (!fs.existsSync(jsonDir)) {
-//     fs.mkdirSync(jsonDir)
-// }
+const jsonDir = path.join(process.cwd(), "generated-json");
+if (!fs.existsSync(jsonDir)) {
+    fs.mkdirSync(jsonDir)
+}
 
 
 /* =======================
@@ -150,7 +149,7 @@ Return this JSON exactly:
       "description": null,
       "qty": null,
       "rate": null,
-      "vat":null
+      "vat:null
       "total": null,
       "grandTotal": null
     }
@@ -206,11 +205,8 @@ export async function POST(req: Request) {
 
         const buffer = Buffer.from(await file.arrayBuffer());
 
-       const tempDir = path.join(os.tmpdir(), "tmp");
-
-if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true });
-}
+        const tempDir = path.join(process.cwd(), "tmp");
+        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
         const filePath = path.join(tempDir, `${randomUUID()}.pdf`);
         fs.writeFileSync(filePath, buffer);
@@ -224,17 +220,17 @@ if (!fs.existsSync(tempDir)) {
         const invoiceJson = await genAIProcessing(extractedText);
 
         // unique file name 
-        // const jsonFilePath = path.join(
-        //     jsonDir,
-        //     `invoice-${randomUUID()}.json`
-        // )
-        // fs.writeFileSync(
-        //     jsonFilePath,
-        //     JSON.stringify(invoiceJson, null, 2), // pretty format
-        //     "utf-8"
-        // );
+        const jsonFilePath = path.join(
+            jsonDir,
+            `invoice-${randomUUID()}.json`
+        )
+        fs.writeFileSync(
+            jsonFilePath,
+            JSON.stringify(invoiceJson, null, 2), // pretty format
+            "utf-8"
+        );
 
-        // console.log("📝 JSON saved to:", jsonFilePath);
+        console.log("📝 JSON saved to:", jsonFilePath);
 
         // 👀 CHECK JSON HERE
         console.log("🟢 FINAL INVOICE JSON:");
