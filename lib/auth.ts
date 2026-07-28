@@ -16,14 +16,15 @@ export const DUMMY_VENDORS: Vendor[] = [
   {
     vendorId: "V-004821",
     companyName: "Al Rashid Steel Trading LLC",
-    email: "parvez.khan@ixorainnovation.com",
+
+    email: "preeti.v@ixorainnovation.com",
     password: "Info@1234",
     contactName: "Ahmed Al Rashid",
   },
   {
     vendorId: "V-005112",
     companyName: "Gulf Tubular Industries",
-    email: "preeti.v@ixorainnovation.com",
+    email: "parvez.khan@ixorainnovation.com",
     password: "Info@1234",
     contactName: "Fatima Noor",
   },
