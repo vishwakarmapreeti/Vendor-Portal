@@ -11,7 +11,7 @@ export default function PageLoader() {
           src="/logo.svg"
           alt="DBMSC Steel"
           width={220}
-          height={70}
+          height={90}
           priority
         />
 

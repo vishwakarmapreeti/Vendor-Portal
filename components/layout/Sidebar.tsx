@@ -85,13 +85,15 @@ export function Sidebar() {
         style={{ borderBottom: `1px solid ${HAIRLINE}` }}
       >
         {/* Logo mark */}
-        <Logo variant="light" />
+  <div className="h-80 w-80 flex items-center justify-center">
+  <Logo variant="light" />
+</div>
 
         {/* Stacked brand lockup — ties logo + product name into one unit */}
         <div className="flex min-w-0 flex-col leading-none">
-          <span className="text-[15px] font-extrabold tracking-tight text-gray-900">
+          {/* <span className="text-[15px] font-extrabold tracking-tight text-gray-900">
             DBMSC
-          </span>
+          </span> */}
           <div className="mt-1 flex items-center gap-1.5">
             <span className="h-3 w-px bg-orange-300/70" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-orange-500">

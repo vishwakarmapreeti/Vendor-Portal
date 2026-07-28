@@ -3,18 +3,27 @@
 import { useState } from "react";
 import Image from "next/image";
 
-const LOGO_URL = "https://dbmscsteel.ae/wp-content/uploads/2022/06/logo-2.svg";
+const LOGO_URL =
+  "https://dbmscsteel.ae/wp-content/uploads/2022/06/logo-2.svg";
 
-export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
+interface LogoProps {
+  variant?: "dark" | "light";
+  className?: string;
+}
+
+export function Logo({
+  variant = "dark",
+  className = "h-[4rem] w-[150px]",
+}: LogoProps) {
   const [failed, setFailed] = useState(false);
 
   if (failed) {
-    // Fallback wordmark if the remote logo can't be reached
     return (
       <div className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gradient text-sm font-extrabold text-white">
           D
         </div>
+
         <span
           className={
             variant === "dark"
@@ -29,13 +38,16 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
   }
 
   return (
-    <div className="relative h-8 w-[132px]">
+    <div className={`relative ${className}`}>
       <Image
         src={LOGO_URL}
         alt="DBMSC Steel"
         fill
-        sizes="132px"
-        style={{ objectFit: "contain", objectPosition: "left center" }}
+        sizes="150px"
+        style={{
+          objectFit: "contain",
+          objectPosition: "left center",
+        }}
         className={variant === "dark" ? "brightness-0 invert" : ""}
         unoptimized
         onError={() => setFailed(true)}
