@@ -1,18 +1,5 @@
-# Dependencies
 node_modules/
-
-# Next.js
 .next/
-out/
-
-# Environment variables
 .env
-.env.local
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
-.DS_Store
-Thumbs.db
+generated-json/
+tmp/
