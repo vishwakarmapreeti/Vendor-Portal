@@ -10,15 +10,31 @@ interface SupplierData {
   phone?: string;
   email?: string;
   address?: string;
+  vatNumber?: string;
+  customerVatNumber?: string;
+}
+
+interface InvoiceData {
+  supplierInformation: SupplierData;
+  customerVatNumber?: string;
+  vatTotal?: number;
 }
 
 interface SupplierInvoiceFormProps {
   supplier: SupplierData;
+  customerVatNumber?: string;
+  vatTotal?: number | null;
 }
 
 export default function SupplierInvoiceForm({
   supplier,
+  customerVatNumber,
+  vatTotal,
 }: SupplierInvoiceFormProps) {
+
+
+  // console.log("supplier:-",supplier);
+  
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       {/* Header */}
@@ -33,6 +49,10 @@ export default function SupplierInvoiceForm({
         <Field label="Supplier Name" value={supplier.name} />
         <Field label="Invoice Date" value={supplier.invoiceDate} />
         <Field label="Invoice Number" value={supplier.invoiceNumber} />
+
+
+        <Field label="Supplier VAT No." value={supplier.vatNumber} />
+        <Field label="Customer VAT No." value={customerVatNumber} />
 
         <Field label="Due Date" value={supplier.dueDate} />
         <Field label="PO Date" value={supplier.poDate} />
@@ -66,10 +86,10 @@ function Field({
         {label}
       </label>
 
-     <input
-  value={value ?? ""}
-  readOnly
-  className="
+      <input
+        value={value ?? ""}
+        readOnly
+        className="
     h-8
     w-full
     rounded-lg
@@ -85,7 +105,7 @@ function Field({
     focus:ring-2
     focus:ring-orange-100
   "
-/>
+      />
     </div>
   );
 }

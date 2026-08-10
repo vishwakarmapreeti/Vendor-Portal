@@ -1,6 +1,6 @@
 
 
-export default function ItemsTable({ items = [] }: any) {
+export default function ItemsTable({ items = [],  vatTotal = null, }: any) {
 
     const parseAmount = (value: any) => {
         if (value == null) return 0;
@@ -20,16 +20,7 @@ export default function ItemsTable({ items = [] }: any) {
         return sum + rowTotal;
     }, 0);
 
-    const extractedVat =
-        items.length > 0 ? parseAmount(items[0].vat) : 0;
-
-    const hasVat =
-        items.length > 0 &&
-        items[0].vat !== null &&
-        items[0].vat !== undefined &&
-        items[0].vat !== "";
-
-    const vat = hasVat ? extractedVat : null;
+ 
 
     const invoiceGrandTotal =
         items.length > 0 ? parseAmount(items[0].grandTotal) : total;
@@ -90,17 +81,19 @@ export default function ItemsTable({ items = [] }: any) {
         </td>
       </tr>
 
-      <tr className="h-10 border-b">
-        <td colSpan={3}></td>
+   <tr className="h-10 border-b">
+  <td colSpan={3}></td>
 
-        <td className="px-3 py-2 font-semibold">
-          VAT (5%)
-        </td>
+  <td className="px-3 py-2 font-semibold">
+    VAT (15%)
+  </td>
 
-        <td className="px-3 py-2 font-semibold text-orange-600">
-          {vat !== null ? vat.toFixed(2) : ""}
-        </td>
-      </tr>
+  <td className="px-3 py-2 font-semibold text-orange-600">
+    {vatTotal !== null && vatTotal !== undefined
+      ? parseAmount(vatTotal).toFixed(2)
+      : ""}
+  </td>
+</tr>
 
       <tr className="h-10 bg-orange-50">
         <td colSpan={3}></td>

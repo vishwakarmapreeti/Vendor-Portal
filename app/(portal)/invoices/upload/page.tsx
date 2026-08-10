@@ -14,20 +14,23 @@ const STEPS = [
 ];
 
 export default function UploadPage() {
-  const emptyInvoice = {
-    supplierInformation: {
-      name: "",
-      invoiceDate: "",
-      invoiceNumber: "",
-      dueDate: "",
-      poDate: "",
-      poNumber: "",
-      phone: "",
-      email: "",
-      address: "",
-    },
-    items: [],
-  };
+const emptyInvoice = {
+  supplierInformation: {
+    name: "",
+    invoiceDate: "",
+    invoiceNumber: "",
+    dueDate: "",
+    poDate: "",
+    poNumber: "",
+    phone: "",
+    email: "",
+    address: "",
+    vatNumber: "",
+  },
+  customerVatNumber: "",
+  vatTotal: null,
+  items: [],
+};
   const router = useRouter();
   const [invoiceData, setInvoiceData] = useState(emptyInvoice);
  const handleSubmit = () => {
@@ -93,16 +96,18 @@ export default function UploadPage() {
         </Card>
 
         {/* Supplier Form */}
-        <div className="lg:col-span-3">
-          <SupplierInvoiceForm
-            supplier={invoiceData.supplierInformation}
-          />
-        </div>
-
+    <div className="lg:col-span-3">
+  <SupplierInvoiceForm
+    supplier={invoiceData.supplierInformation}
+    customerVatNumber={invoiceData.customerVatNumber}
+    vatTotal={invoiceData.vatTotal}
+  />
+</div>
         {/* Items Table */}
         <div className="lg:col-span-3">
           <ItemsTable
             items={invoiceData.items}
+              vatTotal={invoiceData.vatTotal}
           />
         </div>
 

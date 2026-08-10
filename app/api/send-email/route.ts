@@ -33,30 +33,203 @@ export async function POST(req: Request) {
 
     const supplierSheet = workbook.addWorksheet("Supplier");
 
+    // --------------------------------------------------
+    // Calculate subtotal from all line items
+    // --------------------------------------------------
+    const items = body.items || [];
+
+    const subtotal = items.reduce((sum: number, item: any) => {
+      const total =
+        Number(item.total) ||
+        Number(item.qty || 0) * Number(item.rate || 0);
+
+      return sum + total;
+    }, 0);
+
+    // --------------------------------------------------
+    // Excel Columns
+    // --------------------------------------------------
     supplierSheet.columns = [
-      { header: "Name", key: "name", width: 30 },
-      { header: "Invoice No", key: "invoiceNumber", width: 20 },
-      { header: "Invoice Date", key: "invoiceDate", width: 18 },
-      { header: "Due Date", key: "dueDate", width: 18 },
-      { header: "PO Number", key: "poNumber", width: 18 },
-      { header: "Phone", key: "phone", width: 20 },
-      { header: "Email", key: "email", width: 30 },
-      { header: "Address", key: "address", width: 50 },
+      {
+        header: "LI-Description",
+        key: "description",
+        width: 30,
+      },
+      {
+        header: "LI-Quantity",
+        key: "quantity",
+        width: 15,
+      },
+      {
+        header: "LI-UnitPrice",
+        key: "unitPrice",
+        width: 18,
+      },
+      {
+        header: "LI-TotalPrice",
+        key: "totalPrice",
+        width: 18,
+      },
+      {
+        header: "supplier_vat_number",
+        key: "supplierVatNumber",
+        width: 22,
+      },
+      {
+        header: "Document Title",
+        key: "documentTitle",
+        width: 22,
+      },
+      {
+        header: "Vendor Name",
+        key: "vendorName",
+        width: 30,
+      },
+      {
+        header: "Invoice No.",
+        key: "invoiceNumber",
+        width: 20,
+      },
+      {
+        header: "Invoice Date",
+        key: "invoiceDate",
+        width: 18,
+      },
+      {
+        header: "Customer Vat No.",
+        key: "customerVatNumber",
+        width: 22,
+      },
+      {
+        header: "Vat Amount",
+        key: "vatAmount",
+        width: 18,
+      },
+      {
+        header: "subtotal_amount",
+        key: "subtotalAmount",
+        width: 20,
+      },
+      {
+        header: "Total Invoice Amount",
+        key: "totalInvoiceAmount",
+        width: 22,
+      },
     ];
 
-    supplierSheet.addRow({
-      name: body.supplierInformation?.name,
-      invoiceNumber: body.supplierInformation?.invoiceNumber,
-      invoiceDate: body.supplierInformation?.invoiceDate,
-      dueDate: body.supplierInformation?.dueDate,
-      poNumber: body.supplierInformation?.poNumber,
-      phone: body.supplierInformation?.phone,
-      email: body.supplierInformation?.email,
-      address: body.supplierInformation?.address,
+    // --------------------------------------------------
+    // Header styling
+    // --------------------------------------------------
+    const headerRow = supplierSheet.getRow(1);
+
+    headerRow.font = {
+      bold: true,
+    };
+
+    headerRow.alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+
+    headerRow.height = 25;
+
+    // --------------------------------------------------
+    // Add one Excel row for every invoice item
+    // --------------------------------------------------
+    items.forEach((item: any) => {
+      supplierSheet.addRow({
+        description: item.description ?? null,
+
+        quantity: item.qty ?? null,
+
+        unitPrice: item.rate ?? null,
+
+        totalPrice:
+          item.total ??
+          (Number(item.qty || 0) * Number(item.rate || 0)),
+
+        supplierVatNumber:
+          body.supplierInformation?.vatNumber ?? null,
+
+        documentTitle:
+          body.documentTitle ?? "Purchase order",
+
+        vendorName:
+          body.supplierInformation?.name ?? null,
+
+        invoiceNumber:
+          body.supplierInformation?.invoiceNumber ?? null,
+
+        invoiceDate:
+          body.supplierInformation?.invoiceDate ?? null,
+
+        customerVatNumber:
+          body.customerVatNumber ?? null,
+
+        vatAmount:
+          body.vatTotal ?? null,
+
+        subtotalAmount:
+          subtotal,
+
+        totalInvoiceAmount:
+          item.grandTotal ?? null,
+      });
     });
 
+    // --------------------------------------------------
+    // Format monetary columns
+    // --------------------------------------------------
+    supplierSheet.getColumn("unitPrice").numFmt = "#,##0.00";
+    supplierSheet.getColumn("totalPrice").numFmt = "#,##0.00";
+    supplierSheet.getColumn("vatAmount").numFmt = "#,##0.00";
+    supplierSheet.getColumn("subtotalAmount").numFmt = "#,##0.00";
+    supplierSheet.getColumn("totalInvoiceAmount").numFmt = "#,##0.00";
+
+    // --------------------------------------------------
+    // IMPORTANT:
+    // VAT numbers and invoice numbers should be TEXT
+    // so Excel doesn't convert them to scientific notation.
+    // --------------------------------------------------
+    supplierSheet.getColumn("supplierVatNumber").numFmt = "@";
+    supplierSheet.getColumn("customerVatNumber").numFmt = "@";
+    supplierSheet.getColumn("invoiceNumber").numFmt = "@";
+
+    // --------------------------------------------------
+    // Align numeric columns
+    // --------------------------------------------------
+    supplierSheet.getColumn("quantity").alignment = {
+      horizontal: "right",
+    };
+
+    supplierSheet.getColumn("unitPrice").alignment = {
+      horizontal: "right",
+    };
+
+    supplierSheet.getColumn("totalPrice").alignment = {
+      horizontal: "right",
+    };
+
+    supplierSheet.getColumn("vatAmount").alignment = {
+      horizontal: "right",
+    };
+
+    supplierSheet.getColumn("subtotalAmount").alignment = {
+      horizontal: "right",
+    };
+
+    supplierSheet.getColumn("totalInvoiceAmount").alignment = {
+      horizontal: "right",
+    };
+
+    // --------------------------------------------------
+    // Generate Excel file
+    // --------------------------------------------------
     const buffer = await workbook.xlsx.writeBuffer();
 
+    // --------------------------------------------------
+    // Microsoft Graph authentication
+    // --------------------------------------------------
     const token = await getAccessToken();
 
     const client = Client.init({
@@ -65,36 +238,45 @@ export async function POST(req: Request) {
       },
     });
 
-    await client.api(`/users/${process.env.MAIL_SENDER}/sendMail`).post({
-      message: {
-        subject: "Supplier Invoice",
+    // --------------------------------------------------
+    // Send Email
+    // --------------------------------------------------
+    await client
+      .api(`/users/${process.env.MAIL_SENDER}/sendMail`)
+      .post({
+        message: {
+          subject: "Supplier Invoice",
 
-        body: {
-          contentType: "Text",
-          content: "Please find the attached supplier invoice.",
+          body: {
+            contentType: "Text",
+            content: "Please find the attached supplier invoice.",
+          },
+
+          toRecipients: [
+            {
+              emailAddress: {
+                address: "parvez.khan@ixorainnovation.com",
+              },
+            },
+          ],
+
+          attachments: [
+            {
+              "@odata.type": "#microsoft.graph.fileAttachment",
+
+              name: "SupplierInvoice.xlsx",
+
+              contentType:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+              contentBytes:
+                Buffer.from(buffer).toString("base64"),
+            },
+          ],
         },
 
-        toRecipients: [
-          {
-            emailAddress: {
-              address: "parvez.khan@ixorainnovation.com",
-            },
-          },
-        ],
-
-        attachments: [
-          {
-            "@odata.type": "#microsoft.graph.fileAttachment",
-            name: "SupplierInvoice.xlsx",
-            contentType:
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            contentBytes: Buffer.from(buffer).toString("base64"),
-          },
-        ],
-      },
-
-      saveToSentItems: true,
-    });
+        saveToSentItems: true,
+      });
 
     return NextResponse.json({
       success: true,

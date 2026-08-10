@@ -41,20 +41,24 @@ export function InvoiceTable({
 
   const filteredRows = useMemo(() => {
     return invoices.filter((inv) => {
-      const supplier = inv.supplierInformation;
+      const supplier = inv.supplierInformation ?? {};
+
+      const name = supplier.name ?? "";
+      const invoiceNumber = supplier.invoiceNumber ?? "";
 
       const matchesFilter =
         filter === "All" || inv.status === filter;
 
+      const searchTerm = query.trim().toLowerCase();
+
       const matchesQuery =
-        query.trim() === "" ||
-        supplier.name.toLowerCase().includes(query.toLowerCase()) ||
-        supplier.invoiceNumber.toLowerCase().includes(query.toLowerCase());
+        searchTerm === "" ||
+        name.toLowerCase().includes(searchTerm) ||
+        invoiceNumber.toLowerCase().includes(searchTerm);
 
       return matchesFilter && matchesQuery;
     });
   }, [invoices, filter, query]);
-
 
 
 
@@ -127,12 +131,25 @@ export function InvoiceTable({
           <tbody>
             {currentRows.map((inv, index) => (
               <tr key={startIndex + index + 1} className="border-t border-ink-100 hover:bg-ink-50/60">
-                <td className="px-5 py-3.5 font-semibold text-ink-800">{startIndex + index + 1}</td>
-                <td className="px-2 py-3.5 text-ink-600">{inv.supplierInformation.name}</td>
-                <td className="px-2 py-3.5 text-ink-500">{inv.supplierInformation.invoiceNumber}</td>
-                <td className="px-2 py-3.5 font-mono text-xs text-ink-400">{inv.supplierInformation.phone}</td>
-                <td className="px-2 py-3.5 font-semibold text-ink-800">{inv.supplierInformation.email}</td>
-                <td className="px-2 py-3.5 text-ink-500">{inv.supplierInformation.invoiceDate}</td>
+                <td className="px-2 py-3.5 text-ink-600">
+                  {inv.supplierInformation?.name ?? "-"}
+                </td>
+
+                <td className="px-2 py-3.5 text-ink-500">
+                  {inv.supplierInformation?.invoiceNumber ?? "-"}
+                </td>
+
+                <td className="px-2 py-3.5 font-mono text-xs text-ink-400">
+                  {inv.supplierInformation?.phone ?? "-"}
+                </td>
+
+                <td className="px-2 py-3.5 font-semibold text-ink-800">
+                  {inv.supplierInformation?.email ?? "-"}
+                </td>
+
+                <td className="px-2 py-3.5 text-ink-500">
+                  {inv.supplierInformation?.invoiceDate ?? "-"}
+                </td>
                 <td className="px-2 py-3.5">
                   <span
                     className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ${inv.status === "APPROVED"
@@ -163,13 +180,13 @@ export function InvoiceTable({
                     </button>
 
                     {/* Delete */}
-                  <button
-  title="Delete"
-  onClick={() => onDelete(inv)}
-  className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 transition-all duration-200 hover:scale-105 hover:bg-red-500 hover:text-white hover:shadow-md"
->
-  <Trash2 size={16} />
-</button>
+                    <button
+                      title="Delete"
+                      onClick={() => onDelete(inv)}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 transition-all duration-200 hover:scale-105 hover:bg-red-500 hover:text-white hover:shadow-md"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </td>
               </tr>

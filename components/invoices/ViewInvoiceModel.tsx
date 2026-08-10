@@ -16,10 +16,12 @@ export default function ViewInvoiceModal({
     const isCompleted = status === "APPROVED" || status === "REJECTED";
     if (!invoice) return null;
 
-    const {
-        supplierInformation: supplier = {},
-        items = [],
-    } = invoice;
+const {
+    supplierInformation: supplier = {},
+    customerVatNumber = null,
+    vatTotal = null,
+    items = [],
+} = invoice;
 
     const parseAmount = (value: any) => {
         if (value == null) return 0;
@@ -116,9 +118,19 @@ export default function ViewInvoiceModal({
                         <InfoRow label="Name" value={supplier.name} />
                         <InfoRow label="Invoice Date" value={supplier.invoiceDate} />
                         <InfoRow label="Invoice Number" value={supplier.invoiceNumber} />
+
                         <InfoRow label="Due Date" value={supplier.dueDate} />
                         <InfoRow label="PO Date" value={supplier.poDate} />
                         <InfoRow label="PO Number" value={supplier.poNumber} />
+                        <InfoRow
+                            label="Supplier VAT No."
+                            value={supplier.vatNumber}
+                        />
+
+                        <InfoRow
+                            label="Customer VAT No."
+                            value={invoice.customerVatNumber}
+                        />
                         <InfoRow label="Phone" value={supplier.phone} />
                         <InfoRow label="Email" value={supplier.email} />
                     </div>
@@ -185,11 +197,13 @@ export default function ViewInvoiceModal({
 
                                 <tr>
                                     <td colSpan={3} className="px-4 py-2"></td>
+
                                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-700">
-                                        VAT (5%)
+                                        VAT (15%)
                                     </td>
+
                                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-800">
-                                        {hasVat ? `$${extractedVat.toFixed(2)}` : "-"}
+                                        {vatTotal != null ? vatTotal.toFixed(2) : "-"}
                                     </td>
                                 </tr>
 
@@ -227,22 +241,22 @@ export default function ViewInvoiceModal({
 
                     {!isCompleted && (
                         <div className="flex gap-2">
-                         <>
-                        <Button
-                            variant="success"
-                            onClick={handleApprove}
-                            disabled={isApproving}
-                        >
-                            {isApproving ? "Approving..." : "Approve"}
-                        </Button>
+                            <>
+                                <Button
+                                    variant="success"
+                                    onClick={handleApprove}
+                                    disabled={isApproving}
+                                >
+                                    {isApproving ? "Approving..." : "Approve"}
+                                </Button>
 
-                        <Button
-                            variant="danger"
-                            onClick={() => onStatusChange("REJECTED")}
-                        >
-                            Reject
-                        </Button>
-                    </>
+                                <Button
+                                    variant="danger"
+                                    onClick={() => onStatusChange("REJECTED")}
+                                >
+                                    Reject
+                                </Button>
+                            </>
                         </div>
                     )}
 
