@@ -18,6 +18,10 @@ async function getAccessToken() {
     scopes: ["https://graph.microsoft.com/.default"],
   });
 
+  // Debug: check whether token is received
+  console.log("TOKEN RECEIVED:");
+  console.log(result?.accessToken?.substring(0, 30));
+
   if (!result?.accessToken) {
     throw new Error("Unable to get access token");
   }
@@ -256,6 +260,11 @@ export async function POST(req: Request) {
             {
               emailAddress: {
                 address: "parvez.khan@ixorainnovation.com",
+              },
+            },
+            {
+              emailAddress: {
+                address: "rpadevcreator@Alfaisaliah.com",
               },
             },
           ],
