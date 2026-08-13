@@ -249,7 +249,7 @@ export async function POST(req: Request) {
       .api(`/users/${process.env.MAIL_SENDER}/sendMail`)
       .post({
         message: {
-          subject: "Supplier Invoice",
+          subject: "SupplierInvoice",
 
           body: {
             contentType: "Text",
