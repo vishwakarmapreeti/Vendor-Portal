@@ -259,7 +259,7 @@ export async function POST(req: Request) {
           toRecipients: [
             {
               emailAddress: {
-                address: "parvez.khan@ixorainnovation.com",
+                address: "Parvez.khan@digityzesolutions.com",
               },
             },
             {
